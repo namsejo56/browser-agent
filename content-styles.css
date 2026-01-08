@@ -1,0 +1,56 @@
+/* Floating Action Button */
+.gemini-fab {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4);
+  cursor: pointer;
+  z-index: 2147483647;
+  /* Max z-index */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.gemini-fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.6);
+}
+
+.gemini-fab:active {
+  transform: scale(0.95);
+}
+
+.gemini-fab svg {
+  width: 28px;
+  height: 28px;
+  color: white;
+  fill: white;
+}
+
+/* Tooltip */
+.gemini-fab::after {
+  content: 'Ask Gemini';
+  position: absolute;
+  right: 70px;
+  background: rgba(15, 23, 42, 0.9);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-family: sans-serif;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.gemini-fab:hover::after {
+  opacity: 1;
+}

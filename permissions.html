@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Gemini Extension Permissions</title>
+    <style>
+        body {
+            background-color: #0f1115;
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+
+        button {
+            background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+            border: none;
+            padding: 15px 30px;
+            color: white;
+            font-size: 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .success {
+            color: #22c55e;
+            display: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Microphone Permission Required</h1>
+    <p>To use the Talk feature, the Gemini extension needs access to your microphone.</p>
+    <button id="grantBtn">Grant Permission</button>
+    <p class="success" id="successMsg">Permission Granted! You can close this tab now.</p>
+
+    <script src="permissions.js"></script>
+</body>
+
+</html>

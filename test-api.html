@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini API Tester</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+
+    .content {
+      padding: 24px;
+    }
+
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title::before {
+      content: "🔹";
+      font-size: 20px;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      font-family: 'Courier New', monospace;
+      transition: all 0.3s;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    button.secondary {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .result-box {
+      background: #f8f9fa;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .result-box pre {
+      margin: 0;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      color: #333;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .loading {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .loading::after {
+      content: "";
+      width: 16px;
+      height: 16px;
+      border: 2px solid white;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .error {
+      color: #dc3545;
+      background: #f8d7da;
+      border: 2px solid #f5c6cb;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+
+    .success {
+      color: #155724;
+      background: #d4edda;
+      border: 2px solid #c3e6cb;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 12px;
+    }
+
+    .info {
+      background: #e3f2fd;
+      border: 2px solid #90caf9;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 16px;
+      border-radius: 8px;
+      text-align: center;
+    }
+
+    .stat-card .value {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .stat-card .label {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #667eea;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #5568d3;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🤖 Gemini API Tester</h1>
+      <p>Test Gemini API endpoints với API Key của bạn</p>
+    </div>
+
+    <div class="content">
+      <!-- API Key Section -->
+      <div class="section">
+        <div class="section-title">API Configuration</div>
+        <div class="info">
+          🔑 Lấy API key tại: <a href="https://aistudio.google.com/apikey" target="_blank"
+            style="color: #667eea; font-weight: 600;">Google AI Studio</a>
+        </div>
+        <div class="input-group">
+          <label for="apiKey">API Key:</label>
+          <input type="password" id="apiKey" placeholder="Nhập API key của bạn...">
+        </div>
+      </div>
+
+      <!-- List Models Section -->
+      <div class="section">
+        <div class="section-title">1. List All Models</div>
+        <div class="info">
+          <strong>Endpoint:</strong> GET /v1beta/models<br>
+          <strong>Mô tả:</strong> Lấy danh sách tất cả models có sẵn
+        </div>
+        <div class="button-group">
+          <button id="listModelsBtn" onclick="listModels()">
+            📋 List All Models
+          </button>
+          <button id="listFreeModelsBtn" onclick="listFreeModels()" class="secondary">
+            ⭐ List Free-Tier Models Only
+          </button>
+        </div>
+        <div id="modelsResult" style="display: none;">
+          <div class="stats" id="modelsStats"></div>
+          <div class="result-box">
+            <pre id="modelsOutput"></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Get Model Info Section -->
+      <div class="section">
+        <div class="section-title">2. Get Model Info</div>
+        <div class="info">
+          <strong>Endpoint:</strong> GET /v1beta/models/{model}<br>
+          <strong>Mô tả:</strong> Lấy thông tin chi tiết của một model cụ thể
+        </div>
+        <div class="input-group">
+          <label for="modelName">Model Name:</label>
+          <input type="text" id="modelName" placeholder="VD: gemini-2.5-flash" value="gemini-2.5-flash">
+        </div>
+        <div class="button-group">
+          <button id="getModelInfoBtn" onclick="getModelInfo()">
+            🔍 Get Model Info
+          </button>
+        </div>
+        <div id="modelInfoResult" style="display: none;">
+          <div class="result-box">
+            <pre id="modelInfoOutput"></pre>
+          </div>
+        </div>
+      </div>
+
+      <!-- Generate Content Test Section -->
+      <div class="section">
+        <div class="section-title">3. Test Generate Content</div>
+        <div class="info">
+          <strong>Endpoint:</strong> POST /v1beta/models/{model}:generateContent<br>
+          <strong>Mô tả:</strong> Test gọi API generate content để kiểm tra model hoạt động
+        </div>
+        <div class="input-group">
+          <label for="testModelName">Model Name:</label>
+          <input type="text" id="testModelName" placeholder="VD: gemini-2.5-flash" value="gemini-2.5-flash">
+        </div>
+        <div class="input-group">
+          <label for="testPrompt">Prompt:</label>
+          <input type="text" id="testPrompt" placeholder="Nhập prompt để test..." value="Say hello in Vietnamese">
+        </div>
+        <div class="button-group">
+          <button id="testGenerateBtn" onclick="testGenerate()">
+            🚀 Test Generate
+          </button>
+        </div>
+        <div id="generateResult" style="display: none;">
+          <div class="result-box">
+            <pre id="generateOutput"></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://generativelanguage.googleapis.com/v1beta';
+
+    const FREE_TIER_MODELS = [
+      'gemini-3-flash',                        // main fast model
+      'gemini-2.5-pro',                        // premium model, reasoning (free ≤200k tokens)
+      'gemini-2.5-flash',                      // balanced
+      'gemini-2.5-flash-lite',                 // cheapest & light
+      'gemini-2.5-flash-tts',                  // text-to-speech
+      'gemini-2.5-flash-native-audio-dialog',  // audio use
+      'gemini-robotics-er-1.5-preview',        // robotics
+      'gemma-3-12b',
+      'gemma-3-1b',
+      'gemma-3-27b',
+      'gemma-3-2b',
+      'gemma-3-4b'
+    ];
+
+    function getApiKey() {
+      const apiKey = document.getElementById('apiKey').value.trim();
+      if (!apiKey) {
+        showError('Vui lòng nhập API key!');
+        return null;
+      }
+      return apiKey;
+    }
+
+    function showError(message) {
+      alert('❌ ' + message);
+    }
+
+    function setLoading(btnId, loading) {
+      const btn = document.getElementById(btnId);
+      btn.disabled = loading;
+      if (loading) {
+        btn.innerHTML = '<span class="loading">Đang tải...</span>';
+      }
+    }
+
+    async function listModels() {
+      const apiKey = getApiKey();
+      if (!apiKey) return;
+
+      const btn = document.getElementById('listModelsBtn');
+      const originalHTML = btn.innerHTML;
+      setLoading('listModelsBtn', true);
+
+      try {
+        const response = await fetch(`${API_BASE}/models?key=${apiKey}`);
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error?.message || 'API request failed');
+        }
+
+        const data = await response.json();
+
+        // Filter models that support generateContent
+        const generateModels = data.models.filter(m =>
+          m.supportedGenerationMethods?.includes('generateContent')
+        );
+
+        // Show stats
+        const statsHTML = `
+          <div class="stat-card">
+            <div class="value">${data.models.length}</div>
+            <div class="label">Total Models</div>
+          </div>
+          <div class="stat-card">
+            <div class="value">${generateModels.length}</div>
+            <div class="label">Generate Models</div>
+          </div>
+        `;
+        document.getElementById('modelsStats').innerHTML = statsHTML;
+
+        // Show results
+        document.getElementById('modelsOutput').textContent = JSON.stringify(data, null, 2);
+        document.getElementById('modelsResult').style.display = 'block';
+
+      } catch (error) {
+        showError(error.message);
+        console.error('Error:', error);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      }
+    }
+
+    async function listFreeModels() {
+      const apiKey = getApiKey();
+      if (!apiKey) return;
+
+      const btn = document.getElementById('listFreeModelsBtn');
+      const originalHTML = btn.innerHTML;
+      setLoading('listFreeModelsBtn', true);
+
+      try {
+        const response = await fetch(`${API_BASE}/models?key=${apiKey}`);
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error?.message || 'API request failed');
+        }
+
+        const data = await response.json();
+
+        // Filter free-tier models
+        const freeModels = data.models.filter(m => {
+          const modelName = m.name.replace('models/', '');
+          return FREE_TIER_MODELS.includes(modelName) &&
+            m.supportedGenerationMethods?.includes('generateContent');
+        });
+
+        // Show stats
+        const statsHTML = `
+          <div class="stat-card">
+            <div class="value">${freeModels.length}</div>
+            <div class="label">Free-Tier Models</div>
+          </div>
+          <div class="stat-card">
+            <div class="value">${data.models.length}</div>
+            <div class="label">Total Models</div>
+          </div>
+        `;
+        document.getElementById('modelsStats').innerHTML = statsHTML;
+
+        // Show results
+        const result = {
+          freeModels: freeModels,
+          totalCount: data.models.length,
+          freeCount: freeModels.length
+        };
+        document.getElementById('modelsOutput').textContent = JSON.stringify(result, null, 2);
+        document.getElementById('modelsResult').style.display = 'block';
+
+      } catch (error) {
+        showError(error.message);
+        console.error('Error:', error);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      }
+    }
+
+    async function getModelInfo() {
+      const apiKey = getApiKey();
+      if (!apiKey) return;
+
+      const modelName = document.getElementById('modelName').value.trim();
+      if (!modelName) {
+        showError('Vui lòng nhập tên model!');
+        return;
+      }
+
+      const btn = document.getElementById('getModelInfoBtn');
+      const originalHTML = btn.innerHTML;
+      setLoading('getModelInfoBtn', true);
+
+      try {
+        const response = await fetch(`${API_BASE}/models/${modelName}?key=${apiKey}`);
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error?.message || 'API request failed');
+        }
+
+        const data = await response.json();
+
+        // Show results
+        document.getElementById('modelInfoOutput').textContent = JSON.stringify(data, null, 2);
+        document.getElementById('modelInfoResult').style.display = 'block';
+
+      } catch (error) {
+        showError(error.message);
+        console.error('Error:', error);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      }
+    }
+
+    async function testGenerate() {
+      const apiKey = getApiKey();
+      if (!apiKey) return;
+
+      const modelName = document.getElementById('testModelName').value.trim();
+      const prompt = document.getElementById('testPrompt').value.trim();
+
+      if (!modelName || !prompt) {
+        showError('Vui lòng nhập đầy đủ thông tin!');
+        return;
+      }
+
+      const btn = document.getElementById('testGenerateBtn');
+      const originalHTML = btn.innerHTML;
+      setLoading('testGenerateBtn', true);
+
+      try {
+        const response = await fetch(
+          `${API_BASE}/models/${modelName}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }]
+            })
+          }
+        );
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error?.message || 'API request failed');
+        }
+
+        const data = await response.json();
+
+        // Show results
+        document.getElementById('generateOutput').textContent = JSON.stringify(data, null, 2);
+        document.getElementById('generateResult').style.display = 'block';
+
+      } catch (error) {
+        showError(error.message);
+        console.error('Error:', error);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      }
+    }
+  </script>
+</body>
+
+</html>
